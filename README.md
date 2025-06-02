@@ -1,20 +1,6 @@
 # DockerMonitoringApp
 
 <div align="center">
-    <img src="imgs/logo.png" width=40%>
-</div>
-
-<br>
-
-<div align="center">
-
-[![Status](https://img.shields.io/badge/status-active-success.svg)]()
-![GitHub Issues](https://img.shields.io/github/issues/k6zma/DockerMonitoringApp.svg)
-![GitHub Pull Requests](https://img.shields.io/github/issues-pr/k6zma/DockerMonitoringApp.svg)
-
-</div>
-
-<div align="center">
   <img src="https://img.shields.io/badge/Go-black?style=for-the-badge&logo=go&logoColor=#00ADD8"/>
   <img src="https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=#000000"/>
   <img src="https://img.shields.io/badge/TypeScript-black?style=for-the-badge&logo=typescript&logoColor=#3178C6"/>
