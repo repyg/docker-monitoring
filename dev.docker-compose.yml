@@ -1,0 +1,109 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: postgres_db
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend_service
+    depends_on:
+      - db
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  pinger:
+    build:
+      context: ./pinger
+      dockerfile: Dockerfile
+    container_name: pinger_service
+    depends_on:
+      - db
+      - backend
+    networks:
+      - app-network
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_BACKEND_API_URL: "${NEXT_PUBLIC_BACKEND_API_URL}"
+        NEXT_PUBLIC_BACKEND_AUTH_API_KEY: "${NEXT_PUBLIC_BACKEND_AUTH_API_KEY}"
+    container_name: frontend_service
+    depends_on:
+      - db
+      - backend
+      - pinger
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  test_container1:
+    image: alpine:latest
+    container_name: test_container1
+    command: tail -f /dev/null
+    depends_on:
+      - db
+      - backend
+      - pinger
+      - frontend
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  test_container2:
+    image: alpine:latest
+    container_name: test_container2
+    command: tail -f /dev/null
+    depends_on:
+      - db
+      - backend
+      - pinger
+      - frontend
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_service
+    depends_on:
+      - frontend
+      - backend
+      - pinger
+    networks:
+      - app-network
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db_data:
